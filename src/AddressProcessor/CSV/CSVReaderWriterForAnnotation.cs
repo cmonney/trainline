@@ -8,9 +8,22 @@ namespace AddressProcessing.CSV
 
         Please leave the rest of this file as it is so we can discuss your concerns during the next stage of the interview process.
         
-        *)
-        *)
-        *)
+        1) This class voilates some of the SOLID principles especially the Single Responsibility Principle (SRP) 
+            - It has more than one responsibility and thus it presents more than one reason to change it.
+            - It exposes Open, Read with overloads, Write, and Close methods
+        2) It also voilates the Open Close Principle especially in the Open method
+            - If the enum Mode changes the class will need to be modified thus voilating the principle that 
+                "a class should be open for extension and closed for modification"
+            - Whenever you start using too many "If" clauses it is a good sign you have voilated this principle
+        3) Inputs are not validated before they used
+            - File.OpenText expects the file being read to exist and will throw an exception if this is not the case
+            - Check if File.Exist before you proceed
+            - It is possible for the Write method to write an empty string of the "columns" array is empty
+        4) The same code is repeated in the overloaded Read method. This voilates DRY (Don't Repeat Yourself) principle
+        5) There is an issue with the following Read method [bool Read(string column1, string column2)]
+            - Should pass the arguments by reference if it is intended to be used after method call
+            - The purpose of this method is not clear without the ref keyword
+            - bool Read(ref string column1, ref string column2) [column1 and column2 will need to be declared before use in this case]
     */
 
     public class CSVReaderWriterForAnnotation
