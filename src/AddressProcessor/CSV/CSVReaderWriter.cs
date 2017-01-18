@@ -15,6 +15,13 @@ namespace AddressProcessing.CSV
         - To prevent the Write and Read being called before the service is built, I throw an exception if the service in question is null
         - Gang of Four - Program to interfaces, not implementations
         - TODO: One Read method is redundant and should be deleted - commented out for now
+        
+        Some Considerations:
+        - We could separte the Read from Write so as to adhere to the Single Responsibility Principle but as it, it is well encapsulated
+        - Could have used separate builders but that also seems over-kill to me
+        - By exposing Open, Read, Write and Close we are leaking some implementation details,
+          if it were not for the backward compatibility require it would have been better to separate the CSVReadWriter and 
+          just expose Read and Write with the encapsulated implementation detail hidden from the clients
     */
 
 
