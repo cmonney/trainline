@@ -11,13 +11,13 @@ namespace AddressProcessing.Tests
     {
         private FakeMailShotService _fakeMailShotService;
         private const string TestInputFile = @"test_data\contacts.csv";
-        private string _testInputFilePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
+        private readonly string _testDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        private string _testInputFilePath;
 
         [SetUp]
         public void SetUp()
         {
-            _testInputFilePath = Path.Combine(_testInputFilePath, TestInputFile);
+            _testInputFilePath = Path.Combine(_testDirectory, TestInputFile);
             _fakeMailShotService = new FakeMailShotService();
        
         }

@@ -46,36 +46,13 @@ namespace AddressProcessing.CSV
                 }
             }
 
-            WriteLine(outPut);
+            _writerStream.WriteLine(outPut);
         }
 
-        public bool Read(string column1, string column2)
+        // TODO: Remove method if not used.
+        public bool Read( string column1, string column2)
         {
-            const int FIRST_COLUMN = 0;
-            const int SECOND_COLUMN = 1;
-
-            string line;
-            string[] columns;
-
-            char[] separator = { '\t' };
-
-            line = ReadLine();
-            columns = line.Split(separator);
-
-            if (columns.Length == 0)
-            {
-                column1 = null;
-                column2 = null;
-
-                return false;
-            }
-            else
-            {
-                column1 = columns[FIRST_COLUMN];
-                column2 = columns[SECOND_COLUMN];
-
-                return true;
-            }
+            return Read(out column1, out column2);
         }
 
         public bool Read(out string column1, out string column2)
@@ -88,7 +65,7 @@ namespace AddressProcessing.CSV
 
             char[] separator = { '\t' };
 
-            line = ReadLine();
+            line = _readerStream.ReadLine(); ;
 
             if (line == null)
             {
@@ -114,16 +91,6 @@ namespace AddressProcessing.CSV
 
                 return true;
             }
-        }
-
-        private void WriteLine(string line)
-        {
-            _writerStream.WriteLine(line);
-        }
-
-        private string ReadLine()
-        {
-            return _readerStream.ReadLine();
         }
 
         public void Close()

@@ -22,8 +22,9 @@ namespace AddressProcessing.CSV
         4) The same code is repeated in the overloaded Read method. This voilates DRY (Don't Repeat Yourself) principle
         5) There is an issue with the following Read method [bool Read(string column1, string column2)]
             - Should pass the arguments by reference if it is intended to be used after method call
-            - The purpose of this method is not clear without the ref keyword
-            - bool Read(ref string column1, ref string column2) [column1 and column2 will need to be declared before use in this case]
+            - The purpose of this method is not clear without the ref keyword - Even with the ref keyword the methods will be the same.
+            - Consider removing bool Read(string column1, string column2) it serves no purpose
+            - One method is not needed unless it is used in some legacy code, even so I doubt if it is working correctly
     */
 
     public class CSVReaderWriterForAnnotation
