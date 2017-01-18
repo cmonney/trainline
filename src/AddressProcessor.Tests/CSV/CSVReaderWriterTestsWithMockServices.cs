@@ -2,12 +2,14 @@
 using System.IO;
 using System.Reflection;
 using AddressProcessing.CSV;
+using AddressProcessing.CSV.Interfaces;
+using Moq;
 using NUnit.Framework;
 
-namespace Csv.Tests
+namespace AddressProcessing.Tests.CSV
 {
     [TestFixture]
-    public class CSVReaderWriterTests
+    public class CSVReaderWriterTestsWithMockServices
     {
         [SetUp]
         public void SetUp()
@@ -16,7 +18,10 @@ namespace Csv.Tests
             _testOutputFilePath = Path.Combine(_testDirectory, TestOutputFile);
             _nonExistentTestFilePath = Path.Combine(_testDirectory, NonExistentTestInputFile);
 
-            _csvReaderWriter = new CSVReaderWriter();
+            _readCsvServiceMock = new Mock<IReadCsvService>();
+            _writeCsvServiceMock = new Mock<IWriteCsvService>();
+
+            _csvReaderWriter = new CSVReaderWriter(new MockServiceBuilder(_readCsvServiceMock, _writeCsvServiceMock));
         }
 
         [TearDown]
@@ -30,6 +35,9 @@ namespace Csv.Tests
             }
         }
 
+        private Mock<IReadCsvService> _readCsvServiceMock;
+        private Mock<IWriteCsvService> _writeCsvServiceMock;
+
         private CSVReaderWriter _csvReaderWriter;
 
         private const string TestOutputFile = @"test_data\output.csv";
@@ -40,6 +48,34 @@ namespace Csv.Tests
         private string _testInputFilePath;
         private string _testOutputFilePath;
         private string _nonExistentTestFilePath;
+
+        internal class MockServiceBuilder : ICsvReaderWriterServiceBuilder
+        {
+            private readonly Mock<IReadCsvService> _readCsvServiceMock;
+            private readonly Mock<IWriteCsvService> _writeCsvServiceMock;
+
+            public MockServiceBuilder(Mock<IReadCsvService> readCsvServiceMock,
+                Mock<IWriteCsvService> writeCsvServiceMock)
+            {
+                _readCsvServiceMock = readCsvServiceMock;
+                _writeCsvServiceMock = writeCsvServiceMock;
+            }
+
+            public IReadCsvService BuildReadCsvService(string fileName)
+            {
+                if (fileName.EndsWith("notpresent.csv"))
+                {
+                    throw new FileNotFoundException("file not found");
+                }
+
+                return _readCsvServiceMock.Object;
+            }
+
+            public IWriteCsvService BuildWriteCsvService(string fileName)
+            {
+                return _writeCsvServiceMock.Object;
+            }
+        }
 
         [Test]
         public void OpenInNullModeShouldThrowAnException()
@@ -74,29 +110,41 @@ namespace Csv.Tests
             string column1, column2;
 
             var counter = 0;
+            var callCounter = 0;
+
+            _readCsvServiceMock.Setup(x => x.Read(out column1, out column2))
+                .Returns(() => callCounter++ < 20)
+                .Verifiable();
 
             while (_csvReaderWriter.Read(out column1, out column2))
             {
                 counter++;
             }
 
-            Assert.AreEqual(229, counter);
+            Assert.AreEqual(20, counter);
+            _readCsvServiceMock.VerifyAll();
         }
 
         [Test]
         public void WriteShouldSucceedWithAnEmptyColumnsInput()
         {
             var columns = new string[0];
+
+            _writeCsvServiceMock.Setup(x => x.Write(columns)).Verifiable();
+
             _csvReaderWriter.Open(_testOutputFilePath, CSVReaderWriter.Mode.Write);
             Assert.That(() => _csvReaderWriter.Write(columns), Throws.Nothing);
+            _writeCsvServiceMock.Verify();
         }
 
         [Test]
         public void WriteShouldSucceedWithNonEmptyColumnsInput()
         {
             var columns = new[] {"column1", "column2", "column3"};
+            _writeCsvServiceMock.Setup(x => x.Write(columns)).Verifiable();
             _csvReaderWriter.Open(_testOutputFilePath, CSVReaderWriter.Mode.Write);
             Assert.That(() => _csvReaderWriter.Write(columns), Throws.Nothing);
+            _writeCsvServiceMock.Verify();
         }
     }
 }

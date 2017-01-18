@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="AddressFileProcessorTests.cs" />
     <Compile Include="CSV\CSVReaderWriterTests.cs" />
+    <Compile Include="CSV\CSVReaderWriterTestsWithMockServices.cs" />
     <Compile Include="CSV\ReadCsvServiceTests.cs" />
     <Compile Include="CSV\WriteCsvServiceTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
