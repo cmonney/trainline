@@ -1,109 +1,90 @@
 ﻿using System;
-using System.IO;
+using AddressProcessing.CSV.Implementations;
+using AddressProcessing.CSV.Interfaces;
 
 namespace AddressProcessing.CSV
 {
     /*
         2) Refactor this class into clean, elegant, rock-solid & well performing code, without over-engineering.
            Assume this code is in production and backwards compatibility must be maintained.
+        
+        Changes made:
+        - I have kept the contracts as they are and simplified the implementation by introducing two services; One to read CSV and the other to write CSV
+        - I am using a  service builder to build IReadCsvService and IWriteCsvService when the Open method is called
+        - So that I can mock out these services during test, I introduced a service builder in separate constructor
+        - To prevent the Write and Read being called before the service is built, I throw an exception if the service in question is null
+        - TODO read method is redundant and will be deleted.
     */
+
 
     public class CSVReaderWriter
     {
-        private StreamReader _readerStream = null;
-        private StreamWriter _writerStream = null;
-
         [Flags]
-        public enum Mode { Read = 1, Write = 2 };
+        public enum Mode
+        {
+            Read = 1,
+            Write = 2
+        }
+
+        private readonly ICsvReaderWriterServiceBuilder _serviceBuilder;
+        private IReadCsvService _readCsvService;
+        private IWriteCsvService _writeCsvService;
+
+        public CSVReaderWriter()
+        {
+            _serviceBuilder = new CsvReaderWriterServiceBuilder();
+        }
+
+        public CSVReaderWriter(ICsvReaderWriterServiceBuilder builder)
+        {
+            _serviceBuilder = builder;
+        }
 
         public void Open(string fileName, Mode mode)
         {
-            if (mode == Mode.Read)
+            switch (mode)
             {
-                _readerStream = File.OpenText(fileName);
-            }
-            else if (mode == Mode.Write)
-            {
-                FileInfo fileInfo = new FileInfo(fileName);
-                _writerStream = fileInfo.CreateText();
-            }
-            else
-            {
-                throw new Exception("Unknown file mode for " + fileName);
+                case Mode.Read:
+                    _readCsvService = _serviceBuilder.BuildReadCsvService(fileName);
+                    break;
+                case Mode.Write:
+                    _writeCsvService = _serviceBuilder.BuildWriteCsvService(fileName);
+                    break;
+                default:
+                    throw new Exception("Unknown file mode for " + fileName);
             }
         }
 
         public void Write(params string[] columns)
         {
-            string outPut = "";
-
-            for (int i = 0; i < columns.Length; i++)
+            if (_writeCsvService == null)
             {
-                outPut += columns[i];
-                if ((columns.Length - 1) != i)
-                {
-                    outPut += "\t";
-                }
+                throw new Exception("Call Open first before calling Write");
             }
 
-            _writerStream.WriteLine(outPut);
+            _writeCsvService.Write(columns);
         }
 
-        // TODO: Remove method if not used.
-        public bool Read( string column1, string column2)
-        {
-            return Read(out column1, out column2);
-        }
+        // TODO: Removed method because it was not used.
+        //public bool Read( string column1, string column2)
+        //{
+        //    return Read(out column1, out column2);
+        //}
 
         public bool Read(out string column1, out string column2)
         {
-            const int FIRST_COLUMN = 0;
-            const int SECOND_COLUMN = 1;
-
-            string line;
-            string[] columns;
-
-            char[] separator = { '\t' };
-
-            line = _readerStream.ReadLine(); ;
-
-            if (line == null)
+            if (_readCsvService == null)
             {
-                column1 = null;
-                column2 = null;
-
-                return false;
+                throw new Exception("Call Open first before calling Read");
             }
 
-            columns = line.Split(separator);
-
-            if (columns.Length == 0)
-            {
-                column1 = null;
-                column2 = null;
-
-                return false;
-            } 
-            else
-            {
-                column1 = columns[FIRST_COLUMN];
-                column2 = columns[SECOND_COLUMN];
-
-                return true;
-            }
+            return _readCsvService.Read(out column1, out column2);
         }
 
         public void Close()
         {
-            if (_writerStream != null)
-            {
-                _writerStream.Close();
-            }
-
-            if (_readerStream != null)
-            {
-                _readerStream.Close();
-            }
+            _readCsvService?.Close();
+            _writeCsvService?.Close();
         }
     }
 }

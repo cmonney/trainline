@@ -55,12 +55,20 @@
   <ItemGroup>
     <Compile Include="Address\AddressRecord.cs" />
     <Compile Include="Address\AddressFileProcessor.cs" />
+    <Compile Include="CSV\Implementations\CsvReaderWriterServiceBuilder.cs" />
     <Compile Include="CSV\CSVReaderWriterForAnnotation.cs" />
     <Compile Include="CSV\CSVReaderWriter.cs" />
+    <Compile Include="CSV\Interfaces\ICloseService.cs" />
+    <Compile Include="CSV\Interfaces\ICsvReaderWriterServiceBuilder.cs" />
+    <Compile Include="CSV\Interfaces\IReadCsvService.cs" />
+    <Compile Include="CSV\Interfaces\IWriteCsvService.cs" />
+    <Compile Include="CSV\Implementations\ReadCsvService.cs" />
+    <Compile Include="CSV\Implementations\WriteCsvService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Address\v1\IMailShot.cs" />
     <Compile Include="Address\v2\IMailShot.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
