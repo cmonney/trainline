@@ -3,6 +3,9 @@ using AddressProcessing.CSV.Interfaces;
 
 namespace AddressProcessing.CSV.Implementations
 {
+    /// <summary>
+    /// WriteCsvService has one responsibility - Write
+    /// </summary>
     public class WriteCsvService : IWriteCsvService
     {
         private StreamWriter _writerStream = null;

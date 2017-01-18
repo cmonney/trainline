@@ -2,6 +2,9 @@
 
 namespace AddressProcessing.CSV.Implementations
 {
+    /// <summary>
+    /// Implementation of ICsvReaderWriterServiceBuilder to build services
+    /// </summary>
     public class CsvReaderWriterServiceBuilder : ICsvReaderWriterServiceBuilder
     {
         public  IReadCsvService BuildReadCsvService(string fileName)

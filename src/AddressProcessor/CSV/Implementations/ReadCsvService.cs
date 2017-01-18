@@ -3,6 +3,9 @@ using AddressProcessing.CSV.Interfaces;
 
 namespace AddressProcessing.CSV.Implementations
 {
+    /// <summary>
+    /// ReadCsvService has one responsibility - Read and simplified logic
+    /// </summary>
     public class ReadCsvService : IReadCsvService
     {
         private StreamReader _readerStream;

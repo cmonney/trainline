@@ -13,7 +13,8 @@ namespace AddressProcessing.CSV
         - I am using a  service builder to build IReadCsvService and IWriteCsvService when the Open method is called
         - So that I can mock out these services during test, I introduced a service builder in separate constructor
         - To prevent the Write and Read being called before the service is built, I throw an exception if the service in question is null
-        - TODO read method is redundant and will be deleted.
+        - Gang of Four - Program to interfaces, not implementations
+        - TODO: One Read method is redundant and should be deleted - commented out for now
     */
 
 
@@ -65,7 +66,7 @@ namespace AddressProcessing.CSV
             _writeCsvService.Write(columns);
         }
 
-        // TODO: Removed method because it was not used.
+        // TODO: Removed method because it was not used (Commented out for now).
         //public bool Read( string column1, string column2)
         //{
         //    return Read(out column1, out column2);
